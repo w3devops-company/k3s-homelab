@@ -58,6 +58,9 @@ docker compose -f <filename.yaml> down
 
 ## ☸️ K3s & Kubernetes Operations
 
+Detailed deployment, routing, and packaging guides:
+- 📖 [Kubernetes Deployment, Ingress, Kustomize & Helm Guide](docs/deployment.md)
+
 ### Common Commands
 ```bash
 # Check cluster nodes
@@ -72,6 +75,34 @@ kubectl get all
 kubectl describe pod <pod-name>
 kubectl describe node <node-name>
 kubectl describe service <service-name>
+```
+
+### Deployment & Rollout Commands
+```bash
+# Apply or delete a manifest
+kubectl apply -f nginx/nginx-deployment.yaml
+kubectl delete -f nginx/nginx-deployment.yaml
+
+# List and inspect deployments & replicasets
+kubectl get deployments
+kubectl get rs
+kubectl describe deployment web-demo
+
+# Scale replicas up or down
+kubectl scale deployment/web-demo --replicas=6
+
+# Update container image directly
+kubectl set image deployment/web-demo nginx=nginx:alpine
+
+# Manage rollouts & rollbacks
+kubectl rollout status deployment/web-demo
+kubectl rollout history deployment/web-demo
+kubectl rollout undo deployment/web-demo
+kubectl rollout restart deployment/web-demo
+
+# View pod logs and open a shell inside a container
+kubectl logs -l app=web-demo --tail=50
+kubectl exec -it <pod-name> -- /bin/sh
 ```
 
 ### Exposing Services & Traffic Access
@@ -123,6 +154,42 @@ Kubernetes pods are ephemeral and their private IPs change dynamically. Services
 | **Requires Service?** | Yes | Yes (creates ClusterIP underneath) | No (can target Pod or Service directly) |
 | **Persistence** | Permanent | Permanent | Temporary (active only while running) |
 | **Typical Use Case** | Databases, internal APIs | Homelab/LAN access, staging | Temporary troubleshooting |
+
+#### OSI Model (All 7 Layers Simply Explained)
+
+The **OSI Model** breaks down how data travels across a network into 7 layers—from raw electrical/Wi-Fi signals at the bottom (Layer 1) up to the web app you see in your browser (Layer 7):
+
+| Layer | Name | Simple Meaning | Examples / Protocols |
+|---|---|---|---|
+| **7** | **Application** | What the user/app interacts with (URLs, domains, headers) | HTTP, HTTPS, DNS, gRPC, SSH |
+| **6** | **Presentation** | Formats, encodes, and encrypts data | TLS/SSL encryption, JSON, UTF-8 |
+| **5** | **Session** | Opens, manages, and closes connections/sessions | Auth sessions, RPC |
+| **4** | **Transport** | Delivers data reliably to the right **Port** | TCP, UDP (Ports `80`, `443`, `30080`) |
+| **3** | **Network** | Routes packets to the right **IP Address** | IP (`192.168.1.7`, `10.43.65.214`) |
+| **2** | **Data Link** | Moves frames between devices on the same local network | Ethernet, Wi-Fi, MAC addresses |
+| **1** | **Physical** | Raw bits over hardware | Cables, fiber optics, radio waves |
+
+#### Layer 4 vs. Layer 7 in Kubernetes
+
+```text
+LAYER 4 (Kubernetes Service: ClusterIP / NodePort)
+  Sees ONLY: IP Address + Port (TCP/UDP)
+  Cannot see: Domain name, URL path, or HTTP headers
+
+  [ Client ] ──(TCP :30080)──► [ NodePort / kube-proxy ] ──► [ Pod IP :80 ]
+
+
+LAYER 7 (Kubernetes Ingress: Traefik)
+  Sees FULL HTTP Request: Host (domain), Path (/api), Headers, TLS
+
+  [ Client ] ──(HTTPS :443)──► [ Traefik (Layer 7) ]
+                                  ├── Host: web.local      ──► [ web-demo Service ]
+                                  ├── Host: grafana.local  ──► [ grafana Service ]
+                                  └── Path: /api/*         ──► [ backend-api Service ]
+```
+
+- **Layer 4 (`ClusterIP` / `NodePort` / basic `LoadBalancer`)**: Forwards raw TCP/UDP traffic using only **IP + Port**. Fast and simple, but every app needs its own port (`30080`, `30081`, etc.) and cannot route by domain or URL path.
+- **Layer 7 (`Ingress` via Traefik)**: Inspects the **HTTP/HTTPS request** to route multiple apps on ports **`80`/`443`** by domain (`web.local` vs `grafana.local`) or path (`/api` vs `/`), terminate SSL/TLS certificates centrally, and apply redirects or rate limits.
 
 ### Health Checks: Liveness & Readiness Probes
 
