@@ -60,6 +60,8 @@ docker compose -f <filename.yaml> down
 
 Detailed deployment, routing, and packaging guides:
 - 📖 [Kubernetes Deployment, Ingress, Kustomize & Helm Guide](docs/deployment.md)
+- 🧪 [Hands-On Practice Labs (PostgreSQL, Redis, ConfigMap, Secret, PVC, HPA, RBAC, NetworkPolicy)](docs/practice-labs.md)
+- 🚀 [Advanced & Day-2 Topics (Loki Logging, ArgoCD GitOps, cert-manager TLS, Operators, AI/GPU)](docs/advanced-topics.md)
 
 ### Common Commands
 ```bash
