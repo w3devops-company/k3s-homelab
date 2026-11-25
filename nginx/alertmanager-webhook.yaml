@@ -1,0 +1,18 @@
+# alertmanager-webhook.yaml
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: web-demo-notifications
+  namespace: default
+spec:
+  route:
+    groupBy: ['alertname']
+    groupWait: 10s
+    groupInterval: 1m
+    repeatInterval: 1h
+    receiver: 'webhook-test'
+  receivers:
+  - name: 'webhook-test'
+    webhookConfigs:
+    - url: 'https://webhook.site/22326d54-8a7e-4a15-92c1-fda8f982f632'
+      sendResolved: true

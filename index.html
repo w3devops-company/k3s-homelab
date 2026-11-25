@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DevOps & K3s Production Docs</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Ubuntu, Docker, Kubernetes, K3s, and Microservices CI/CD & Monitoring Cheatsheets and Runbooks." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css" title="light" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css" title="dark" disabled />
+  <style>
+    :root {
+      --base-font-size: 15px;
+      --theme-color: #2563eb;
+      --sidebar-width: 18rem;
+      --content-max-width: 60rem;
+      --code-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .theme-toggle {
+      position: fixed;
+      top: 12px;
+      right: 16px;
+      z-index: 99;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(128, 128, 128, 0.35);
+      background: var(--base-background-color, #fff);
+      color: var(--base-color, #222);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+    .theme-toggle:hover {
+      border-color: var(--theme-color);
+    }
+    .mermaid {
+      text-align: center;
+      margin: 1.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">Dark Mode</button>
+  <div id="app">Loading docs...</div>
+
+  <script>
+    // Dark / Light mode toggle persisted in localStorage
+    (function () {
+      const lightSheet = document.querySelector('link[title="light"]');
+      const darkSheet = document.querySelector('link[title="dark"]');
+      const btn = document.getElementById('themeToggle');
+
+      function applyTheme(mode) {
+        const isDark = mode === 'dark';
+        lightSheet.disabled = isDark;
+        darkSheet.disabled = !isDark;
+        btn.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+        localStorage.setItem('docs-theme', mode);
+      }
+
+      const saved = localStorage.getItem('docs-theme') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      applyTheme(saved);
+
+      btn.addEventListener('click', function () {
+        const next = darkSheet.disabled ? 'dark' : 'light';
+        applyTheme(next);
+      });
+    })();
+
+    window.$docsify = {
+      name: 'DevOps & K3s Docs',
+      repo: 'https://github.com/w3devops-company/k3s-homelab',
+      loadSidebar: true,
+      subMaxLevel: 3,
+      auto2top: true,
+      relativePath: true,
+      search: {
+        maxAge: 86400000,
+        paths: 'auto',
+        placeholder: 'Search guides & commands...',
+        noData: 'No matching results.',
+        depth: 4
+      },
+      copyCode: {
+        buttonText: 'Copy',
+        errorText: 'Error',
+        successText: 'Copied!'
+      },
+      pagination: {
+        previousText: 'Previous',
+        nextText: 'Next',
+        crossChapter: true,
+        crossChapterText: true
+      },
+      mermaidConfig: {
+        querySelector: '.mermaid'
+      }
+    };
+  </script>
+
+  <!-- Core Docsify -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+
+  <!-- Plugins -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code@2/dist/docsify-copy-code.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-pagination@2/dist/docsify-pagination.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/js/docsify-themeable.min.js"></script>
+
+  <!-- Mermaid Diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-mermaid@2/dist/docsify-mermaid.js"></script>
+
+  <!-- Syntax Highlighting -->
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-yaml.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-docker.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-nginx.min.js"></script>
+</body>
+</html>

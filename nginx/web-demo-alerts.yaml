@@ -1,0 +1,51 @@
+# web-demo-alerts.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: web-demo-alerts
+  namespace: monitoring
+  labels:
+    # Required so the Prometheus Operator discovers this rule
+    release: prometheus
+spec:
+  groups:
+  - name: web-demo.rules
+    rules:
+    # 1. Alert if available replicas drop below desired replicas
+    - alert: WebDemoReplicasMismatch
+      expr: |
+        kube_deployment_status_replicas_available{namespace="default", deployment="web-demo"}
+        <
+        kube_deployment_spec_replicas{namespace="default", deployment="web-demo"}
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "web-demo has fewer available replicas than desired"
+        description: "Deployment web-demo in namespace default currently has {{ $value }} available replicas."
+
+    # 2. Alert if any web-demo pod restarts
+    - alert: WebDemoPodRestarting
+      expr: |
+        increase(kube_pod_container_status_restarts_total{namespace="default", pod=~"web-demo-.*"}[10m]) > 0
+      for: 0m
+      labels:
+        severity: warning
+      annotations:
+        summary: "web-demo pod restarted"
+        description: "Pod {{ $labels.pod }} restarted {{ $value }} times in the last 10 minutes."
+
+    # 3. Alert if container memory exceeds 80% of its 128Mi limit
+    - alert: WebDemoHighMemoryUsage
+      expr: |
+        (
+          container_memory_working_set_bytes{namespace="default", pod=~"web-demo-.*", container="nginx"}
+          /
+          kube_pod_container_resource_limits{namespace="default", pod=~"web-demo-.*", container="nginx", resource="memory"}
+        ) > 0.8
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "web-demo pod high memory usage"
+        description: "Pod {{ $labels.pod }} is using more than 80% of its memory limit."
